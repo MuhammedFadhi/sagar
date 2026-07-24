@@ -1,0 +1,11 @@
+4966:             showConfirm(options) {
+4967:                 this.confirmDialog = { show: true, title: options.title || 'Are you sure?', message: options.message || '', icon: options.icon || '⚠️', btnText: options.btnText || 'Delete', btnClass: options.btnClass || 'btn-danger', onConfirm: options.onConfirm || null, onCancel: options.onCancel || null };
+4968:             },
+4969:             
+4970:             // Stats & Logs Lists
+4971:             stats: {"employees":{"total":0,"active":0,"on_leave":0,"branches":0},"expiries":{"iqama":0,"passport":0,"insurance":0,"baladiya":0,"driving":0,"total":0},"tickets":{"eligible_now":0,"eligible_30":0,"eligible_60":0,"overdue":0,"delayed":0}},
+4972:             logs: [],
+4973:             categories: [],
+4974:             activeCategoryFilter: 'all',
+4975:             showCategoryModal: false,
+4976:             showBranchModal: false,

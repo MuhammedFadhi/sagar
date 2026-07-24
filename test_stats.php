@@ -1,0 +1,1 @@
+<?php require " vendor/autoload.php\; $app = require_once \bootstrap/app.php\; $app->make(\Illuminate\Contracts\Console\Kernel\)->bootstrap(); $c = app()->make(\App\Http\Controllers\DashboardController\); $stats = $c->getStats()->getData()->stats ?? null; echo json_encode($stats);
