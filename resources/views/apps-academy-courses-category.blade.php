@@ -10,7 +10,7 @@
     <div id="layout-wrapper">
 
         <div class="pt-5">
-            <!-- Course Categories -->
+            <!-- Course Categorc:\Users\lenovo\Desktop\a360 projects\New folder (9)ies -->
             <div class="row mb-5">
                 <div class="col-md-6 col-xl-4 col-xxl-3">
                     <div class="card card-h-100 webGradient text-white">

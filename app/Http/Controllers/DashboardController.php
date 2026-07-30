@@ -9,7 +9,6 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use App\Models\User;
 use App\Models\BusinessCategory;
-use App\Models\Branch;
 use App\Models\Employee;
 use App\Models\EmployeeDocument;
 use App\Models\Leave;
@@ -264,7 +263,7 @@ class DashboardController extends Controller
         $totalEmployees = Employee::count();
         $activeEmployees = Employee::where('employment_status', 'Active')->count();
         $onLeaveEmployees = Employee::where('employment_status', 'On Leave')->count();
-        $totalBranches = Branch::count();
+        $totalCategories = BusinessCategory::count();
 
         // 2. Document Expiries (Phase 5 Expiry management)
         $documents = EmployeeDocument::all();
@@ -308,7 +307,11 @@ class DashboardController extends Controller
         foreach ($employees as $emp) {
             $status = $emp->ticket_status;
             $daysLeft = $emp->ticket_eligibility_days_left;
-            
+
+            if ($status === 'N/A') {
+                continue; // no joining date set yet, exclude from eligibility counts
+            }
+
             if ($status === 'Eligible') {
                 $eligibleThisMonth++;
             } elseif ($status === 'Overdue') {
@@ -325,21 +328,8 @@ class DashboardController extends Controller
         }
 
         // 4. Charts data
-        // Employees by branch
-        $branchCounts = Employee::selectRaw('branch_id, count(*) as count')
-            ->groupBy('branch_id')
-            ->with('branch')
-            ->get()
-            ->map(function ($item) {
-                return [
-                    'label' => $item->branch ? $item->branch->name : 'Unknown',
-                    'count' => $item->count
-                ];
-            });
-
         // Employees by Business Category
-        $businessCounts = Employee::join('branches', 'employees.branch_id', '=', 'branches.id')
-            ->join('business_categories', 'branches.business_category_id', '=', 'business_categories.id')
+        $businessCounts = Employee::join('business_categories', 'employees.business_category_id', '=', 'business_categories.id')
             ->selectRaw('business_categories.name as business_name, count(employees.id) as count')
             ->groupBy('business_categories.id', 'business_name')
             ->get()
@@ -361,25 +351,14 @@ class DashboardController extends Controller
                 ];
             });
 
-        // Employees by Department
-        $departmentCounts = Employee::selectRaw('department, count(*) as count')
-            ->groupBy('department')
-            ->get()
-            ->map(function ($item) {
-                return [
-                    'label' => $item->department,
-                    'count' => $item->count
-                ];
-            });
-
         return response()->json([
             'success' => true,
             'stats' => [
                 'employees' => [
-                    'total'    => $totalEmployees,
-                    'active'   => $activeEmployees,
-                    'on_leave' => $onLeaveEmployees,
-                    'branches' => $totalBranches
+                    'total'      => $totalEmployees,
+                    'active'     => $activeEmployees,
+                    'on_leave'   => $onLeaveEmployees,
+                    'categories' => $totalCategories
                 ],
                 'expiries' => [
                     'iqama'    => $iqamaExpiring,
@@ -397,23 +376,19 @@ class DashboardController extends Controller
                     'delayed'      => $delayedDueToLeave
                 ],
                 'charts' => [
-                    'by_branch'      => ['labels' => $branchCounts->pluck('label')->values()->all(), 'data' => $branchCounts->pluck('count')->values()->all()],
                     'by_business'    => ['labels' => $businessCounts->pluck('label')->values()->all(), 'data' => $businessCounts->pluck('count')->values()->all()],
                     'by_nationality' => ['labels' => $nationalityCounts->pluck('label')->values()->all(), 'data' => $nationalityCounts->pluck('count')->values()->all()],
-                    'by_department'  => ['labels' => $departmentCounts->pluck('label')->values()->all(), 'data' => $departmentCounts->pluck('count')->values()->all()],
                 ]
             ]
         ]);
     }
 
     /**
-     * Get all categories with branches and employee counts
+     * Get all categories with employee counts
      */
     public function getCategories()
     {
-        $categories = BusinessCategory::with(['branches' => function($q) {
-            $q->withCount('employees');
-        }])->get();
+        $categories = BusinessCategory::withCount('employees')->get();
 
         return response()->json([
             'success' => true,
@@ -468,96 +443,14 @@ class DashboardController extends Controller
         ]);
     }
 
-    /**
-     * Store a new branch
-     */
-    public function storeBranch(Request $request)
-    {
-        if (Auth::user()->role !== 'admin') {
-            return response()->json(['success' => false, 'message' => 'Unauthorized action'], 403);
-        }
-
-        $request->validate([
-            'business_category_id' => 'required|exists:business_categories,id',
-            'name' => 'required|string|max:255',
-            'code' => 'nullable|string|max:50',
-        ]);
-
-        $branch = Branch::create([
-            'business_category_id' => $request->business_category_id,
-            'name' => $request->name,
-            'code' => $request->code,
-        ]);
-
-        ActivityLog::log('Create Branch', "Created branch: {$branch->name} in category ID: {$request->business_category_id}");
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Branch created successfully',
-            'branch' => $branch
-        ]);
-    }
-
-    /**
-     * Update an existing branch
-     */
-    public function updateBranch(Request $request, $id)
-    {
-        if (Auth::user()->role !== 'admin') {
-            return response()->json(['success' => false, 'message' => 'Unauthorized action'], 403);
-        }
-
-        $request->validate([
-            'business_category_id' => 'required|exists:business_categories,id',
-            'name' => 'required|string|max:255',
-            'code' => 'nullable|string|max:50',
-        ]);
-
-        $branch = Branch::findOrFail($id);
-        $branch->update([
-            'business_category_id' => $request->business_category_id,
-            'name' => $request->name,
-            'code' => $request->code,
-        ]);
-
-        ActivityLog::log('Update Branch', "Updated branch details for: {$branch->name}");
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Branch updated successfully',
-            'branch' => $branch
-        ]);
-    }
-
-    /**
-     * Delete a branch
-     */
-    public function deleteBranch($id)
-    {
-        if (Auth::user()->role !== 'admin') {
-            return response()->json(['success' => false, 'message' => 'Unauthorized action'], 403);
-        }
-
-        $branch = Branch::findOrFail($id);
-        $name = $branch->name;
-        $branch->delete();
-
-        ActivityLog::log('Delete Branch', "Deleted branch: {$name}");
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Branch deleted successfully'
-        ]);
-    }
-
     // ========== PHASE 3: EMPLOYEE MANAGEMENT ==========
 
     public function getEmployees(Request $request)
     {
-        $query = Employee::with(['branch.businessCategory'])->withCount('documents', 'leaves');
+        $query = Employee::with(['businessCategory'])->withCount('documents', 'leaves');
 
-        if ($request->has('branch_id') && $request->branch_id) {
-            $query->where('branch_id', $request->branch_id);
+        if ($request->has('business_category_id') && $request->business_category_id) {
+            $query->where('business_category_id', $request->business_category_id);
         }
         if ($request->has('status') && $request->status) {
             $query->where('employment_status', $request->status);
@@ -567,7 +460,6 @@ class DashboardController extends Controller
             $query->where(function($q) use ($s) {
                 $q->where('full_name', 'like', "%{$s}%")
                   ->orWhere('employee_id', 'like', "%{$s}%")
-                  ->orWhere('employee_number', 'like', "%{$s}%")
                   ->orWhere('mobile_number', 'like', "%{$s}%");
             });
         }
@@ -576,7 +468,6 @@ class DashboardController extends Controller
             return [
                 'id' => $emp->id,
                 'employee_id' => $emp->employee_id,
-                'employee_number' => $emp->employee_number,
                 'full_name' => $emp->full_name,
                 'arabic_name' => $emp->arabic_name,
                 'profile_photo' => $emp->profile_photo ? asset('storage/' . $emp->profile_photo) : null,
@@ -589,10 +480,9 @@ class DashboardController extends Controller
                 'emergency_contact_name' => $emp->emergency_contact_name,
                 'emergency_contact_phone' => $emp->emergency_contact_phone,
                 'joining_date' => $emp->joining_date?->format('Y-m-d'),
-                'branch_id' => $emp->branch_id,
-                'branch_name' => $emp->branch ? $emp->branch->name : null,
-                'business_category' => $emp->branch && $emp->branch->businessCategory ? $emp->branch->businessCategory->name : null,
-                'department' => $emp->department,
+                'business_category_id' => $emp->business_category_id,
+                'business_category' => $emp->businessCategory ? $emp->businessCategory->name : null,
+                'has_login' => (bool) $emp->user_id,
                 'designation' => $emp->designation,
                 'salary' => $emp->salary,
                 'shift' => $emp->shift,
@@ -610,14 +500,13 @@ class DashboardController extends Controller
 
     public function getEmployee($id)
     {
-        $emp = Employee::with(['branch.businessCategory', 'documents', 'leaves.approver'])->findOrFail($id);
+        $emp = Employee::with(['businessCategory', 'user', 'documents', 'leaves.approver'])->findOrFail($id);
 
         return response()->json([
             'success' => true,
             'employee' => [
                 'id' => $emp->id,
                 'employee_id' => $emp->employee_id,
-                'employee_number' => $emp->employee_number,
                 'full_name' => $emp->full_name,
                 'arabic_name' => $emp->arabic_name,
                 'profile_photo' => $emp->profile_photo ? asset('storage/' . $emp->profile_photo) : null,
@@ -630,10 +519,10 @@ class DashboardController extends Controller
                 'emergency_contact_name' => $emp->emergency_contact_name,
                 'emergency_contact_phone' => $emp->emergency_contact_phone,
                 'joining_date' => $emp->joining_date?->format('Y-m-d'),
-                'branch_id' => $emp->branch_id,
-                'branch_name' => $emp->branch ? $emp->branch->name : null,
-                'business_category' => $emp->branch && $emp->branch->businessCategory ? $emp->branch->businessCategory->name : null,
-                'department' => $emp->department,
+                'business_category_id' => $emp->business_category_id,
+                'business_category' => $emp->businessCategory ? $emp->businessCategory->name : null,
+                'has_login' => (bool) $emp->user_id,
+                'login_email' => $emp->user ? $emp->user->email : null,
                 'designation' => $emp->designation,
                 'salary' => $emp->salary,
                 'shift' => $emp->shift,
@@ -673,6 +562,19 @@ class DashboardController extends Controller
         ]);
     }
 
+    /**
+     * Auto-generate the next sequential Employee ID, e.g. EMP-001, EMP-002...
+     */
+    private function generateNextEmployeeId(): string
+    {
+        $lastNumber = Employee::query()
+            ->selectRaw("MAX(CAST(SUBSTRING_INDEX(employee_id, '-', -1) AS UNSIGNED)) as max_num")
+            ->value('max_num');
+
+        $next = ((int) $lastNumber) + 1;
+        return 'EMP-' . str_pad((string) $next, 3, '0', STR_PAD_LEFT);
+    }
+
     public function storeEmployee(Request $request)
     {
         if (Auth::user()->role !== 'admin') {
@@ -680,8 +582,6 @@ class DashboardController extends Controller
         }
 
         $validator = Validator::make($request->all(), [
-            'employee_id'     => 'required|string|unique:employees,employee_id',
-            'employee_number' => 'required|string|unique:employees,employee_number',
             'full_name'       => 'required|string|max:255',
             'arabic_name'     => 'nullable|string|max:255',
             'gender'          => 'required|in:Male,Female',
@@ -690,14 +590,16 @@ class DashboardController extends Controller
             'mobile_number'   => 'required|string|max:30',
             'email'           => 'nullable|email|max:255',
             'address'         => 'nullable|string',
-            'joining_date'    => 'required|date',
-            'branch_id'       => 'required|exists:branches,id',
-            'department'      => 'required|string|max:255',
+            'joining_date'    => 'nullable|date',
+            'business_category_id' => 'required|exists:business_categories,id',
             'designation'     => 'required|string|max:255',
             'salary'          => 'required|numeric|min:0',
             'shift'           => 'required|string|max:50',
             'employment_status' => 'required|string|max:50',
             'profile_photo_file' => 'nullable|image|max:2048',
+            'create_login'    => 'nullable|boolean',
+            'login_email'     => 'required_if:create_login,1|nullable|email|unique:users,email',
+            'login_password'  => 'required_if:create_login,1|nullable|string|min:6',
         ]);
 
         if ($validator->fails()) {
@@ -705,20 +607,35 @@ class DashboardController extends Controller
         }
 
         $data = $request->only([
-            'employee_id', 'employee_number', 'full_name', 'arabic_name', 'gender',
+            'full_name', 'arabic_name', 'gender',
             'date_of_birth', 'nationality', 'mobile_number', 'email', 'address',
             'emergency_contact_name', 'emergency_contact_phone', 'joining_date',
-            'branch_id', 'department', 'designation', 'salary', 'shift', 'employment_status'
+            'business_category_id', 'designation', 'salary', 'shift', 'employment_status'
         ]);
+
+        $data['employee_id'] = $this->generateNextEmployeeId();
 
         if ($request->hasFile('profile_photo_file')) {
             $data['profile_photo'] = $request->file('profile_photo_file')->store('employee_photos', 'public');
         }
 
-        $employee = Employee::create($data);
+        $employee = \DB::transaction(function () use ($request, $data) {
+            if ($request->boolean('create_login')) {
+                $user = User::create([
+                    'name'     => $data['full_name'],
+                    'email'    => $request->login_email,
+                    'role'     => 'user',
+                    'password' => Hash::make($request->login_password),
+                ]);
+                $data['user_id'] = $user->id;
+            }
+
+            return Employee::create($data);
+        });
+
         ActivityLog::log('Create Employee', "Added new employee: {$employee->full_name} (ID: {$employee->employee_id})");
 
-        return response()->json(['success' => true, 'message' => 'Employee added successfully', 'employee' => ['id' => $employee->id]]);
+        return response()->json(['success' => true, 'message' => 'Employee added successfully', 'employee' => ['id' => $employee->id, 'employee_id' => $employee->employee_id]]);
     }
 
     public function updateEmployee(Request $request, $id)
@@ -730,8 +647,6 @@ class DashboardController extends Controller
         $employee = Employee::findOrFail($id);
 
         $validator = Validator::make($request->all(), [
-            'employee_id'     => 'required|string|unique:employees,employee_id,' . $id,
-            'employee_number' => 'required|string|unique:employees,employee_number,' . $id,
             'full_name'       => 'required|string|max:255',
             'arabic_name'     => 'nullable|string|max:255',
             'gender'          => 'required|in:Male,Female',
@@ -739,9 +654,8 @@ class DashboardController extends Controller
             'nationality'     => 'required|string|max:255',
             'mobile_number'   => 'required|string|max:30',
             'email'           => 'nullable|email|max:255',
-            'joining_date'    => 'required|date',
-            'branch_id'       => 'required|exists:branches,id',
-            'department'      => 'required|string|max:255',
+            'joining_date'    => 'nullable|date',
+            'business_category_id' => 'required|exists:business_categories,id',
             'designation'     => 'required|string|max:255',
             'salary'          => 'required|numeric|min:0',
             'shift'           => 'required|string|max:50',
@@ -754,10 +668,10 @@ class DashboardController extends Controller
         }
 
         $data = $request->only([
-            'employee_id', 'employee_number', 'full_name', 'arabic_name', 'gender',
+            'full_name', 'arabic_name', 'gender',
             'date_of_birth', 'nationality', 'mobile_number', 'email', 'address',
             'emergency_contact_name', 'emergency_contact_phone', 'joining_date',
-            'branch_id', 'department', 'designation', 'salary', 'shift', 'employment_status'
+            'business_category_id', 'designation', 'salary', 'shift', 'employment_status'
         ]);
 
         if ($request->hasFile('profile_photo_file')) {
@@ -860,7 +774,7 @@ class DashboardController extends Controller
         $today = Carbon::today();
         $threshold = $today->copy()->addDays($days);
 
-        $docs = \App\Models\EmployeeDocument::with('employee.branch')
+        $docs = \App\Models\EmployeeDocument::with('employee.businessCategory')
             ->whereNotNull('expiry_date')
             ->where('expiry_date', '<=', $threshold)
             ->orderBy('expiry_date')
@@ -872,8 +786,7 @@ class DashboardController extends Controller
                     'id' => $doc->id,
                     'employee_id' => $doc->employee_id,
                     'employee_name' => $doc->employee ? $doc->employee->full_name : 'N/A',
-                    'employee_number' => $doc->employee ? $doc->employee->employee_number : 'N/A',
-                    'branch' => $doc->employee && $doc->employee->branch ? $doc->employee->branch->name : 'N/A',
+                    'business_category' => $doc->employee && $doc->employee->businessCategory ? $doc->employee->businessCategory->name : 'N/A',
                     'type' => $doc->type,
                     'document_number' => $doc->document_number,
                     'expiry_date' => $doc->expiry_date,
@@ -889,7 +802,7 @@ class DashboardController extends Controller
 
     public function getLeaves(Request $request)
     {
-        $query = \App\Models\Leave::with(['employee.branch', 'approver']);
+        $query = \App\Models\Leave::with(['employee.businessCategory', 'approver']);
 
         if ($request->employee_id) {
             $query->where('employee_id', $request->employee_id);
@@ -906,8 +819,7 @@ class DashboardController extends Controller
                 'id' => $leave->id,
                 'employee_id' => $leave->employee_id,
                 'employee_name' => $leave->employee ? $leave->employee->full_name : 'N/A',
-                'employee_number' => $leave->employee ? $leave->employee->employee_number : 'N/A',
-                'branch' => $leave->employee && $leave->employee->branch ? $leave->employee->branch->name : 'N/A',
+                'business_category' => $leave->employee && $leave->employee->businessCategory ? $leave->employee->businessCategory->name : 'N/A',
                 'leave_type' => $leave->leave_type,
                 'start_date' => $leave->start_date,
                 'end_date' => $leave->end_date,
@@ -1025,15 +937,13 @@ class DashboardController extends Controller
 
     public function getTicketEligibility()
     {
-        $employees = Employee::with('branch.businessCategory')->get()->map(function ($emp) {
+        $employees = Employee::with('businessCategory')->get()->map(function ($emp) {
             return [
                 'id' => $emp->id,
                 'employee_id' => $emp->employee_id,
-                'employee_number' => $emp->employee_number,
                 'full_name' => $emp->full_name,
                 'nationality' => $emp->nationality,
-                'branch' => $emp->branch ? $emp->branch->name : 'N/A',
-                'business_category' => $emp->branch && $emp->branch->businessCategory ? $emp->branch->businessCategory->name : 'N/A',
+                'business_category' => $emp->businessCategory ? $emp->businessCategory->name : 'N/A',
                 'joining_date' => $emp->joining_date?->format('Y-m-d'),
                 'employment_status' => $emp->employment_status,
                 'working_service_days' => $emp->working_service_days,
@@ -1170,7 +1080,6 @@ class DashboardController extends Controller
                 $alerts[] = [
                     'id'            => $doc->id,
                     'employee_name' => $doc->employee ? $doc->employee->full_name : 'N/A',
-                    'employee_number' => $doc->employee ? $doc->employee->employee_number : 'N/A',
                     'document_type' => $doc->type,
                     'document_number' => $doc->document_number,
                     'expiry_date'   => $doc->expiry_date,
@@ -1267,7 +1176,6 @@ class DashboardController extends Controller
         return response()->json([
             'success' => true,
             'data' => [
-                'departments'  => json_decode(CompanySetting::getVal('master_departments', '["Operations","HR","Finance","Kitchen","Service","Delivery","Management"]'), true),
                 'designations' => json_decode(CompanySetting::getVal('master_designations', '["Manager","Supervisor","Chef","Waiter","Cashier","Driver","Cleaner","Guard"]'), true),
                 'leave_types'  => json_decode(CompanySetting::getVal('master_leave_types', '["Annual Leave","Emergency Leave","Medical Leave","Unpaid Leave","Casual Leave","Hajj Leave","Maternity Leave"]'), true),
                 'nationalities'=> json_decode(CompanySetting::getVal('master_nationalities', '["Saudi","Egyptian","Pakistani","Indian","Filipino","Bangladeshi","Yemeni","Syrian","Sudanese","Nepali"]'), true),
@@ -1284,7 +1192,7 @@ class DashboardController extends Controller
         $field = $request->input('field');
         $values = $request->input('values', []);
 
-        if (in_array($field, ['departments', 'designations', 'leave_types', 'nationalities'])) {
+        if (in_array($field, ['designations', 'leave_types', 'nationalities'])) {
             CompanySetting::setVal('master_' . $field, json_encode(array_filter(array_map('trim', $values))));
         }
 

@@ -261,15 +261,15 @@
                                 <div class="card-body">
                                     <div class="d-flex align-items-center justify-content-between mb-3">
                                         <div>
-                                            <span class="text-muted fs-13 d-block mb-1">Operating Branches</span>
-                                            <h3 class="fw-bold mb-0 text-info" x-text="stats.employees.branches">0</h3>
+                                            <span class="text-muted fs-13 d-block mb-1">Business Categories</span>
+                                            <h3 class="fw-bold mb-0 text-info" x-text="stats.employees.categories">0</h3>
                                         </div>
                                         <div class="h-45px w-45px rounded-pill bg-info-subtle text-info d-flex align-items-center justify-content-center fs-5">
                                             <i class="bi bi-building"></i>
                                         </div>
                                     </div>
                                     <button class="btn btn-sm btn-outline-info w-100 fs-12" @click="page = 'branches'">
-                                        <i class="bi bi-building-add me-1"></i> View Branches
+                                        <i class="bi bi-building-add me-1"></i> View Categories
                                     </button>
                                 </div>
                             </div>
@@ -396,17 +396,6 @@
                         <div class="col-xl-6 mb-4">
                             <div class="card h-100">
                                 <div class="card-header bg-transparent border-bottom py-3">
-                                    <h5 class="card-title mb-0 text-dark fw-semibold"><i class="bi bi-bar-chart-fill me-2 text-primary"></i>Employees by Branch</h5>
-                                </div>
-                                <div class="card-body d-flex align-items-center justify-content-center" style="min-height:220px;">
-                                    <canvas id="branchChart" style="max-height:200px;"></canvas>
-                                    <p class="text-muted fs-13 m-0" id="branchChartEmpty" style="display:none;">No branch data available yet.</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-xl-6 mb-4">
-                            <div class="card h-100">
-                                <div class="card-header bg-transparent border-bottom py-3">
                                     <h5 class="card-title mb-0 text-dark fw-semibold"><i class="bi bi-pie-chart-fill me-2 text-success"></i>Employees by Business Type</h5>
                                 </div>
                                 <div class="card-body d-flex align-items-center justify-content-center" style="min-height:220px;">
@@ -423,17 +412,6 @@
                                 <div class="card-body d-flex align-items-center justify-content-center" style="min-height:220px;">
                                     <canvas id="nationalityChart" style="max-height:200px;"></canvas>
                                     <p class="text-muted fs-13 m-0" id="nationalityChartEmpty" style="display:none;">No nationality data available yet.</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-xl-6 mb-4">
-                            <div class="card h-100">
-                                <div class="card-header bg-transparent border-bottom py-3">
-                                    <h5 class="card-title mb-0 text-dark fw-semibold"><i class="bi bi-diagram-3 me-2 text-warning"></i>Employees by Department</h5>
-                                </div>
-                                <div class="card-body d-flex align-items-center justify-content-center" style="min-height:220px;">
-                                    <canvas id="departmentChart" style="max-height:200px;"></canvas>
-                                    <p class="text-muted fs-13 m-0" id="departmentChartEmpty" style="display:none;">No department data available yet.</p>
                                 </div>
                             </div>
                         </div>
@@ -512,9 +490,6 @@
                                     <a class="nav-link active" data-bs-toggle="tab" href="#settingsCompany" id="tab-company">Company</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link" data-bs-toggle="tab" href="#settingsDepts" id="tab-depts" @click="loadMasterData()">Departments</a>
-                                </li>
-                                <li class="nav-item">
                                     <a class="nav-link" data-bs-toggle="tab" href="#settingsDesigs" id="tab-desigs" @click="loadMasterData()">Designations</a>
                                 </li>
                                 <li class="nav-item">
@@ -545,26 +520,6 @@
                                             <span x-show="settingsForm.loading">Updating...</span>
                                         </button>
                                     </form>
-                                </div>
-
-                                <!-- Departments Tab -->
-                                <div class="tab-pane fade" id="settingsDepts">
-                                    <h6 class="fw-semibold text-dark mb-3">Manage Departments</h6>
-                                    <p class="text-muted fs-13">These departments will be available in the Employee Management form.</p>
-                                    <div x-show="masterSaveSuccess" class="alert alert-success p-2 fs-13" x-text="masterSaveSuccess"></div>
-                                    <div class="d-flex flex-wrap gap-2 mb-3">
-                                        <template x-for="(dept, idx) in masterData.departments" :key="idx">
-                                            <span class="badge bg-primary-subtle text-primary px-3 py-2 fs-13 d-flex align-items-center gap-2">
-                                                <span x-text="dept"></span>
-                                                <button type="button" class="btn-close btn-close-sm p-0" style="font-size:10px;" @click="masterData.departments.splice(idx,1)"></button>
-                                            </span>
-                                        </template>
-                                    </div>
-                                    <div class="input-group mb-3" style="max-width:400px;">
-                                        <input type="text" class="form-control form-control-sm" placeholder="Add department..." x-model="newDeptName" @keydown.enter.prevent="if(newDeptName.trim()){ masterData.departments.push(newDeptName.trim()); newDeptName=''; }">
-                                        <button class="btn btn-sm btn-outline-primary" @click="if(newDeptName.trim()){ masterData.departments.push(newDeptName.trim()); newDeptName=''; }"><i class="bi bi-plus-lg"></i></button>
-                                    </div>
-                                    <button class="btn btn-primary btn-sm" @click="saveMasterDataField('departments')">Save Departments</button>
                                 </div>
 
                                 <!-- Designations Tab -->
@@ -676,12 +631,11 @@
                     </div>
                 </div>
 
-                <!-- SECTION 5: BUSINESS & BRANCH MANAGEMENT (Phase 2) -->
+                <!-- SECTION 5: BUSINESS CATEGORY MANAGEMENT (Phase 2) -->
                 <div x-show="page === 'branches'" x-transition>
                     <div class="row">
-                        <!-- Left Panel: Categories -->
-                        <div class="col-lg-4 mb-4">
-                            <div class="card h-100">
+                        <div class="col-12 mb-4">
+                            <div class="card">
                                 <div class="card-header bg-transparent border-bottom d-flex align-items-center justify-content-between py-3">
                                     <h5 class="card-title mb-0 text-dark fw-semibold">Business Categories</h5>
                                     <button x-show="userRole === 'admin'" class="btn btn-sm btn-primary" @click="categoryModalForm.name = ''; categoryModalForm.errorMessage = ''; showCategoryModal = true;">
@@ -690,86 +644,25 @@
                                 </div>
                                 <div class="card-body p-0">
                                     <div class="list-group list-group-flush">
-                                        <button class="list-group-item list-group-item-action px-4 py-3 d-flex justify-content-between align-items-center"
-                                                :class="activeCategoryFilter === 'all' ? 'active fw-semibold' : ''"
-                                                @click="activeCategoryFilter = 'all'">
-                                            <span>All Categories</span>
-                                            <span class="badge rounded-pill bg-secondary-subtle text-secondary" x-text="categories.reduce((acc, cat) => acc + cat.branches.length, 0)">0</span>
-                                        </button>
                                         <template x-for="cat in categories" :key="cat.id">
-                                            <div class="list-group-item list-group-item-action px-4 py-3 d-flex justify-content-between align-items-center"
-                                                 :class="activeCategoryFilter === cat.id ? 'active fw-semibold' : ''"
-                                                 style="cursor: pointer;"
-                                                 @click="activeCategoryFilter = cat.id">
-                                                <span x-text="cat.name"></span>
+                                            <div class="list-group-item px-4 py-3 d-flex justify-content-between align-items-center">
+                                                <span class="fw-semibold text-dark" x-text="cat.name"></span>
                                                 <div class="d-flex align-items-center gap-2">
-                                                    <span class="badge rounded-pill bg-light text-dark border" x-text="cat.branches.length">0</span>
+                                                    <span class="badge rounded-pill bg-light text-dark border" x-text="(cat.employees_count || 0) + ' Employees'">0</span>
                                                     <button x-show="userRole === 'admin'" class="btn btn-sm text-danger p-0 border-0 bg-transparent" @click.stop="deleteCategory(cat.id)">
                                                         <i class="bi bi-trash fs-14"></i>
                                                     </button>
                                                 </div>
                                             </div>
                                         </template>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Right Panel: Branches -->
-                        <div class="col-lg-8 mb-4">
-                            <div class="card h-100">
-                                <div class="card-header bg-transparent border-bottom d-flex align-items-center justify-content-between py-3">
-                                    <h5 class="card-title mb-0 text-dark fw-semibold">Branch List</h5>
-                                    <button x-show="userRole === 'admin' && categories.length > 0" class="btn btn-sm btn-primary" @click="openAddBranchModal(activeCategoryFilter !== 'all' ? activeCategoryFilter : '')">
-                                        <i class="bi bi-plus-lg me-1"></i>Add Branch
-                                    </button>
-                                </div>
-                                <div class="card-body p-4">
-                                    <template x-for="cat in categories" :key="cat.id">
-                                        <div class="mb-4" x-show="activeCategoryFilter === 'all' || activeCategoryFilter === cat.id">
-                                            <h6 class="border-bottom pb-2 mb-3 fw-bold text-dark d-flex align-items-center justify-content-between">
-                                                <span x-text="cat.name"></span>
-                                                <span class="badge bg-light text-muted border fs-11" x-text="cat.branches.length + ' Branches'"></span>
-                                            </h6>
-                                            <div class="row g-3">
-                                                <template x-for="branch in cat.branches" :key="branch.id">
-                                                    <div class="col-md-6 col-xl-4">
-                                                        <div class="card border shadow-sm mb-0">
-                                                            <div class="card-body p-3">
-                                                                <div class="d-flex justify-content-between align-items-start mb-2">
-                                                                    <h6 class="mb-0 fw-bold text-dark text-truncate" style="max-width: 150px;" x-text="branch.name"></h6>
-                                                                    <span class="badge bg-primary-subtle text-primary fs-11" x-text="branch.code || 'NO-CODE'"></span>
-                                                                </div>
-                                                                <p class="text-muted fs-12 mb-3">
-                                                                    <i class="bi bi-people me-1"></i> <span x-text="branch.employees_count || 0">0</span> Employees Assigned
-                                                                </p>
-                                                                <div x-show="userRole === 'admin'" class="d-flex justify-content-end gap-2 border-top pt-2">
-                                                                    <button class="btn btn-sm btn-light py-1 px-2 border fs-12" @click="openEditBranchModal(branch)">
-                                                                        <i class="bi bi-pencil me-1"></i>Edit
-                                                                    </button>
-                                                                    <button class="btn btn-sm btn-light-danger py-1 px-2 border fs-12" @click="deleteBranch(branch.id)">
-                                                                        <i class="bi bi-trash me-1"></i>Delete
-                                                                    </button>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </template>
-                                                <template x-if="cat.branches.length === 0">
-                                                    <div class="col-12">
-                                                        <p class="text-muted fs-13 italic mb-0">No branches added under this category yet.</p>
-                                                    </div>
-                                                </template>
+                                        <template x-if="categories.length === 0">
+                                            <div class="text-center py-5">
+                                                <i class="bi bi-building fs-1 text-muted mb-3 d-block"></i>
+                                                <h6>No Business Categories Defined</h6>
+                                                <p class="text-muted fs-13">Create a category to start assigning employees to it.</p>
                                             </div>
-                                        </div>
-                                    </template>
-                                    <template x-if="categories.length === 0">
-                                        <div class="text-center py-5">
-                                            <i class="bi bi-building fs-1 text-muted mb-3 d-block"></i>
-                                            <h6>No Business Categories Defined</h6>
-                                            <p class="text-muted fs-13">Create a category first to start adding branches.</p>
-                                        </div>
-                                    </template>
+                                        </template>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -790,14 +683,10 @@
                                     <option>Terminated</option>
                                     <option>Resigned</option>
                                 </select>
-                                <select class="form-select form-select-sm" style="width:150px;" x-model="empFilterBranch" @change="loadEmployees()">
-                                    <option value="">All Branches</option>
+                                <select class="form-select form-select-sm" style="width:150px;" x-model="empFilterCategory" @change="loadEmployees()">
+                                    <option value="">All Categories</option>
                                     <template x-for="cat in categories" :key="cat.id">
-                                        <optgroup :label="cat.name">
-                                            <template x-for="branch in cat.branches" :key="branch.id">
-                                                <option :value="branch.id" x-text="branch.name"></option>
-                                            </template>
-                                        </optgroup>
+                                        <option :value="cat.id" x-text="cat.name"></option>
                                     </template>
                                 </select>
                                 <button x-show="userRole === 'admin'" class="btn btn-sm btn-primary" @click="openAddEmployee()">
@@ -811,9 +700,9 @@
                                     <thead class="table-light">
                                         <tr>
                                             <th class="ps-4">Employee</th>
-                                            <th>ID / No.</th>
-                                            <th>Branch / Category</th>
-                                            <th>Department</th>
+                                            <th>Employee ID</th>
+                                            <th>Business Category</th>
+                                            <th>Designation</th>
                                             <th>Nationality</th>
                                             <th>Status</th>
                                             <th>Ticket</th>
@@ -854,15 +743,12 @@
                                                 </td>
                                                 <td>
                                                     <div class="fw-medium" x-text="emp.employee_id"></div>
-                                                    <div class="text-muted fs-12" x-text="emp.employee_number"></div>
                                                 </td>
                                                 <td>
-                                                    <div x-text="emp.branch_name || '-'"></div>
-                                                    <div class="text-muted fs-12" x-text="emp.business_category || ''"></div>
+                                                    <div x-text="emp.business_category || '-'"></div>
                                                 </td>
                                                 <td>
-                                                    <div x-text="emp.department"></div>
-                                                    <div class="text-muted fs-12" x-text="emp.designation"></div>
+                                                    <div x-text="emp.designation"></div>
                                                 </td>
                                                 <td x-text="emp.nationality"></td>
                                                 <td>
@@ -962,7 +848,7 @@
                                             <th class="ps-4">Employee</th>
                                             <th>Document Type</th>
                                             <th>Document No.</th>
-                                            <th>Branch</th>
+                                            <th>Business Category</th>
                                             <th>Expiry Date</th>
                                             <th>Days Left</th>
                                             <th class="pe-4">Status</th>
@@ -973,11 +859,10 @@
                                             <tr>
                                                 <td class="ps-4">
                                                     <div class="fw-semibold text-dark" x-text="doc.employee_name"></div>
-                                                    <div class="text-muted fs-12" x-text="doc.employee_number"></div>
                                                 </td>
                                                 <td><span class="badge bg-primary-subtle text-primary" x-text="doc.type"></span></td>
                                                 <td x-text="doc.document_number"></td>
-                                                <td x-text="doc.branch"></td>
+                                                <td x-text="doc.business_category"></td>
                                                 <td x-text="doc.expiry_date"></td>
                                                 <td>
                                                     <span :class="doc.days_left < 0 ? 'text-danger fw-bold' : (doc.days_left <= 15 ? 'text-danger fw-semibold' : (doc.days_left <= 30 ? 'text-warning fw-semibold' : 'text-dark'))">
@@ -1065,7 +950,7 @@
                                             <tr>
                                                 <td class="ps-4">
                                                     <div class="fw-semibold text-dark" x-text="leave.employee_name"></div>
-                                                    <div class="text-muted fs-12" x-text="leave.branch"></div>
+                                                    <div class="text-muted fs-12" x-text="leave.business_category"></div>
                                                 </td>
                                                 <td>
                                                     <span class="badge bg-primary-subtle text-primary" x-text="leave.leave_type"></span>
@@ -1167,7 +1052,7 @@
                                         <tr>
                                             <th class="ps-4">Employee</th>
                                             <th>Nationality</th>
-                                            <th>Branch</th>
+                                            <th>Business Category</th>
                                             <th>Joined</th>
                                             <th>Actual Service Days</th>
                                             <th>Paused Days (Leaves)</th>
@@ -1183,7 +1068,7 @@
                                                     <div class="text-muted fs-12" x-text="emp.employee_id"></div>
                                                 </td>
                                                 <td x-text="emp.nationality"></td>
-                                                <td x-text="emp.branch"></td>
+                                                <td x-text="emp.business_category"></td>
                                                 <td x-text="emp.joining_date"></td>
                                                 <td>
                                                     <div class="d-flex align-items-center gap-2">
@@ -1368,7 +1253,6 @@
                                             <tr :class="alert.urgency === 'expired' ? 'table-danger' : (alert.urgency === 'critical' ? 'table-warning' : '')">
                                                 <td class="ps-4">
                                                     <div class="fw-semibold text-dark" x-text="alert.employee_name"></div>
-                                                    <div class="text-muted fs-12" x-text="alert.employee_number"></div>
                                                 </td>
                                                 <td><span class="badge bg-primary-subtle text-primary" x-text="alert.document_type"></span></td>
                                                 <td x-text="alert.document_number"></td>
@@ -1463,50 +1347,6 @@
             </div>
         </div>
 
-        <!-- Add/Edit Branch Modal -->
-        <div class="modal fade show" tabindex="-1" style="display: block; background: rgba(0,0,0,0.5); z-index: 1050;" x-show="showBranchModal">
-            <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content border-0 shadow-lg">
-                    <div class="modal-header border-bottom">
-                        <h5 class="modal-title fw-bold text-dark" x-text="branchModalForm.id ? 'Edit Branch' : 'Add Branch'">Add Branch</h5>
-                        <button type="button" class="btn-close" @click="showBranchModal = false"></button>
-                    </div>
-                    <form @submit.prevent="submitBranch">
-                        <div class="modal-body p-4">
-                            <div x-show="branchModalForm.errorMessage" class="alert alert-danger p-2 fs-13 text-center" x-text="branchModalForm.errorMessage"></div>
-                            
-                            <div class="mb-3">
-                                <label class="form-label text-dark">Business Category <span class="text-danger">*</span></label>
-                                <select class="form-select" x-model="branchModalForm.category_id" required>
-                                    <option value="" disabled>Select Category</option>
-                                    <template x-for="cat in categories" :key="cat.id">
-                                        <option :value="cat.id" x-text="cat.name"></option>
-                                    </template>
-                                </select>
-                            </div>
-
-                            <div class="mb-3">
-                                <label class="form-label text-dark">Branch Name <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" placeholder="e.g. Riyadh Main, Olaya Branch" x-model="branchModalForm.name" required>
-                            </div>
-
-                            <div class="mb-3">
-                                <label class="form-label text-dark">Branch Code (Optional)</label>
-                                <input type="text" class="form-control" placeholder="e.g. BR-01" x-model="branchModalForm.code">
-                            </div>
-                        </div>
-                        <div class="modal-footer border-top">
-                            <button type="button" class="btn btn-secondary btn-sm" @click="showBranchModal = false">Cancel</button>
-                            <button type="submit" class="btn btn-primary btn-sm" :disabled="branchModalForm.loading">
-                                <span x-show="!branchModalForm.loading" x-text="branchModalForm.id ? 'Save Changes' : 'Create Branch'">Create</span>
-                                <span x-show="branchModalForm.loading" class="spinner-border spinner-border-sm" role="status"></span>
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-
         <!-- Add/Edit Employee Modal -->
         <div class="modal fade show" tabindex="-1" style="display: block; background: rgba(0,0,0,0.5); z-index: 1050;" x-show="showEmployeeModal">
             <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
@@ -1515,146 +1355,210 @@
                         <h5 class="modal-title fw-bold text-dark" x-text="employeeModalForm.id ? 'Edit Employee' : 'Add New Employee'">Add Employee</h5>
                         <button type="button" class="btn-close" @click="showEmployeeModal = false"></button>
                     </div>
+
+                    <!-- Wizard step indicator: create-flow only -->
+                    <div class="px-4 pt-3 d-flex gap-1 border-bottom" x-show="!employeeModalForm.id">
+                        <span class="modal-tab-btn" :class="wizardStep === 1 ? 'active' : ''">1. Personal Info</span>
+                        <span class="modal-tab-btn" :class="wizardStep === 2 ? 'active' : ''">2. Employment & Access</span>
+                        <span class="modal-tab-btn" :class="wizardStep === 3 ? 'active' : ''">3. Documents</span>
+                    </div>
+
                     <form @submit.prevent="submitEmployee" enctype="multipart/form-data" class="d-flex flex-column overflow-hidden">
                         <div class="modal-body p-4" style="flex: 1 1 auto; min-height: 0;">
                             <div x-show="employeeModalForm.errorMessage" class="alert alert-danger p-2 fs-13" x-text="employeeModalForm.errorMessage"></div>
-                            <h6 class="text-muted fw-semibold mb-3 border-bottom pb-2">Personal Information</h6>
-                            <div class="row g-3 mb-3">
-                                <div class="col-md-6">
-                                    <label class="form-label">Full Name <span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control" x-model="employeeModalForm.full_name" required>
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label">Arabic Name</label>
-                                    <input type="text" class="form-control" x-model="employeeModalForm.arabic_name" dir="rtl">
-                                </div>
-                                <div class="col-md-4">
-                                    <label class="form-label">Gender <span class="text-danger">*</span></label>
-                                    <select class="form-select" x-model="employeeModalForm.gender" required>
-                                        <option value="" disabled>Select</option>
-                                        <option>Male</option>
-                                        <option>Female</option>
-                                    </select>
-                                </div>
-                                <div class="col-md-4">
-                                    <label class="form-label">Date of Birth <span class="text-danger">*</span></label>
-                                    <input type="date" class="form-control" x-model="employeeModalForm.date_of_birth" required>
-                                </div>
-                                <div class="col-md-4">
-                                    <label class="form-label">Nationality <span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control" x-model="employeeModalForm.nationality" required>
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label">Mobile Number <span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control" x-model="employeeModalForm.mobile_number" required>
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label">Email</label>
-                                    <input type="email" class="form-control" x-model="employeeModalForm.email">
-                                </div>
-                                <div class="col-12">
-                                    <label class="form-label">Address</label>
-                                    <input type="text" class="form-control" x-model="employeeModalForm.address">
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label">Emergency Contact Name</label>
-                                    <input type="text" class="form-control" x-model="employeeModalForm.emergency_contact_name">
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label">Emergency Contact Phone</label>
-                                    <input type="text" class="form-control" x-model="employeeModalForm.emergency_contact_phone">
+
+                            <!-- STEP 1: Personal Information -->
+                            <div x-show="employeeModalForm.id || wizardStep === 1">
+                                <h6 class="text-muted fw-semibold mb-3 border-bottom pb-2">Personal Information</h6>
+                                <div class="row g-3 mb-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label">Full Name <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" x-model="employeeModalForm.full_name" :required="employeeModalForm.id">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Arabic Name</label>
+                                        <input type="text" class="form-control" x-model="employeeModalForm.arabic_name" dir="rtl">
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label">Gender <span class="text-danger">*</span></label>
+                                        <select class="form-select" x-model="employeeModalForm.gender" :required="employeeModalForm.id">
+                                            <option value="" disabled>Select</option>
+                                            <option>Male</option>
+                                            <option>Female</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label">Date of Birth <span class="text-danger">*</span></label>
+                                        <input type="date" class="form-control" x-model="employeeModalForm.date_of_birth" :required="employeeModalForm.id">
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label">Nationality <span class="text-danger">*</span></label>
+                                        <select class="form-select" x-model="employeeModalForm.nationality" :required="employeeModalForm.id">
+                                            <option value="" disabled>Select Nationality</option>
+                                            <template x-for="n in masterData.nationalities" :key="n">
+                                                <option :value="n" x-text="n"></option>
+                                            </template>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Mobile Number <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" x-model="employeeModalForm.mobile_number" :required="employeeModalForm.id">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Email</label>
+                                        <input type="email" class="form-control" x-model="employeeModalForm.email">
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="form-label">Address</label>
+                                        <input type="text" class="form-control" x-model="employeeModalForm.address">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Emergency Contact Name</label>
+                                        <input type="text" class="form-control" x-model="employeeModalForm.emergency_contact_name">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Emergency Contact Phone</label>
+                                        <input type="text" class="form-control" x-model="employeeModalForm.emergency_contact_phone">
+                                    </div>
                                 </div>
                             </div>
-                            <h6 class="text-muted fw-semibold mb-3 border-bottom pb-2">Employment Information</h6>
-                            <div class="row g-3">
-                                <div class="col-md-4">
-                                    <label class="form-label">Employee ID <span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control" x-model="employeeModalForm.employee_id" placeholder="EMP-001" required>
-                                </div>
-                                <div class="col-md-4">
-                                    <label class="form-label">Employee Number <span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control" x-model="employeeModalForm.employee_number" placeholder="E10001" required>
-                                </div>
-                                <div class="col-md-4">
-                                    <label class="form-label">Joining Date <span class="text-danger">*</span></label>
-                                    <input type="date" class="form-control" x-model="employeeModalForm.joining_date" required>
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label">Branch <span class="text-danger">*</span></label>
-                                    <select class="form-select" x-model="employeeModalForm.branch_id" required>
-                                        <option value="" disabled>Select Branch</option>
-                                        <template x-for="cat in categories" :key="cat.id">
-                                            <optgroup :label="cat.name">
-                                                <template x-for="branch in cat.branches" :key="branch.id">
-                                                    <option :value="branch.id" x-text="branch.name"></option>
+
+                            <!-- STEP 2: Employment Information + optional system login -->
+                            <div x-show="employeeModalForm.id || wizardStep === 2">
+                                <h6 class="text-muted fw-semibold mb-3 border-bottom pb-2">Employment Information</h6>
+                                <div class="row g-3">
+                                    <div class="col-md-4" x-show="employeeModalForm.id">
+                                        <label class="form-label">Employee ID</label>
+                                        <input type="text" class="form-control" x-model="employeeModalForm.employee_id" disabled>
+                                    </div>
+                                    <div class="col-md-4" x-show="!employeeModalForm.id">
+                                        <label class="form-label">Employee ID</label>
+                                        <input type="text" class="form-control" value="Auto-generated on save" disabled>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label">Joining Date</label>
+                                        <input type="date" class="form-control" x-model="employeeModalForm.joining_date">
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label">Business Category <span class="text-danger">*</span></label>
+                                        <select class="form-select" x-model="employeeModalForm.business_category_id" :required="employeeModalForm.id">
+                                            <option value="" disabled>Select Business Category</option>
+                                            <template x-for="cat in categories" :key="cat.id">
+                                                <option :value="cat.id" x-text="cat.name"></option>
+                                            </template>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Designation <span class="text-danger">*</span></label>
+                                        <select class="form-select" x-model="employeeModalForm.designation" :required="employeeModalForm.id">
+                                            <option value="" disabled>Select Designation</option>
+                                            <template x-if="masterData.designations.length > 0">
+                                                <template x-for="d in masterData.designations" :key="d">
+                                                    <option :value="d" x-text="d"></option>
                                                 </template>
-                                            </optgroup>
-                                        </template>
-                                    </select>
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label">Department <span class="text-danger">*</span></label>
-                                    <select class="form-select" x-model="employeeModalForm.department" required>
-                                        <option value="" disabled>Select Department</option>
-                                        <template x-if="masterData.departments.length > 0">
-                                            <template x-for="d in masterData.departments" :key="d">
-                                                <option :value="d" x-text="d"></option>
                                             </template>
-                                        </template>
-                                        <template x-if="masterData.departments.length === 0">
-                                            <option :value="employeeModalForm.department" x-text="employeeModalForm.department || 'Loading...'"></option>
-                                        </template>
-                                    </select>
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label">Designation <span class="text-danger">*</span></label>
-                                    <select class="form-select" x-model="employeeModalForm.designation" required>
-                                        <option value="" disabled>Select Designation</option>
-                                        <template x-if="masterData.designations.length > 0">
-                                            <template x-for="d in masterData.designations" :key="d">
-                                                <option :value="d" x-text="d"></option>
+                                            <template x-if="masterData.designations.length === 0">
+                                                <option :value="employeeModalForm.designation" x-text="employeeModalForm.designation || 'Loading...'"></option>
                                             </template>
-                                        </template>
-                                        <template x-if="masterData.designations.length === 0">
-                                            <option :value="employeeModalForm.designation" x-text="employeeModalForm.designation || 'Loading...'"></option>
-                                        </template>
-                                    </select>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label">Salary (SAR) <span class="text-danger">*</span></label>
+                                        <input type="number" class="form-control" x-model="employeeModalForm.salary" min="0" :required="employeeModalForm.id">
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label">Shift <span class="text-danger">*</span></label>
+                                        <select class="form-select" x-model="employeeModalForm.shift" :required="employeeModalForm.id">
+                                            <option value="" disabled>Select</option>
+                                            <option>Morning</option>
+                                            <option>Evening</option>
+                                            <option>Night</option>
+                                            <option>Split</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Employment Status <span class="text-danger">*</span></label>
+                                        <select class="form-select" x-model="employeeModalForm.employment_status" :required="employeeModalForm.id">
+                                            <option>Active</option>
+                                            <option>On Leave</option>
+                                            <option>Terminated</option>
+                                            <option>Resigned</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="form-label">Profile Photo</label>
+                                        <input type="file" class="form-control" accept="image/*" @change="employeeModalForm.photoFile = $event.target.files[0]">
+                                    </div>
                                 </div>
-                                <div class="col-md-3">
-                                    <label class="form-label">Salary (SAR) <span class="text-danger">*</span></label>
-                                    <input type="number" class="form-control" x-model="employeeModalForm.salary" min="0" required>
-                                </div>
-                                <div class="col-md-3">
-                                    <label class="form-label">Shift <span class="text-danger">*</span></label>
-                                    <select class="form-select" x-model="employeeModalForm.shift" required>
-                                        <option value="" disabled>Select</option>
-                                        <option>Morning</option>
-                                        <option>Evening</option>
-                                        <option>Night</option>
-                                        <option>Split</option>
-                                    </select>
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label">Employment Status <span class="text-danger">*</span></label>
-                                    <select class="form-select" x-model="employeeModalForm.employment_status" required>
-                                        <option>Active</option>
-                                        <option>On Leave</option>
-                                        <option>Terminated</option>
-                                        <option>Resigned</option>
-                                    </select>
-                                </div>
-                                <div class="col-12">
-                                    <label class="form-label">Profile Photo</label>
-                                    <input type="file" class="form-control" accept="image/*" @change="employeeModalForm.photoFile = $event.target.files[0]">
-                                </div>
+
+                                <template x-if="!employeeModalForm.id">
+                                    <div class="mt-4 pt-3 border-top">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="createLoginCheck" x-model="employeeModalForm.create_login">
+                                            <label class="form-check-label fw-semibold text-dark" for="createLoginCheck">Grant system access (create a login for this employee)</label>
+                                        </div>
+                                        <div class="row g-3 mt-1" x-show="employeeModalForm.create_login">
+                                            <div class="col-md-6">
+                                                <label class="form-label">Login Email <span class="text-danger">*</span></label>
+                                                <input type="email" class="form-control" x-model="employeeModalForm.login_email">
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label">Login Password <span class="text-danger">*</span></label>
+                                                <input type="password" class="form-control" x-model="employeeModalForm.login_password" placeholder="Min. 6 characters">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </template>
                             </div>
+
+                            <!-- STEP 3: Documents (create-flow only) -->
+                            <template x-if="!employeeModalForm.id">
+                                <div x-show="wizardStep === 3">
+                                    <h6 class="text-muted fw-semibold mb-3 border-bottom pb-2">Documents <span class="fw-normal fs-12">(optional — can also be added later)</span></h6>
+                                    <template x-for="docType in documentTypeList" :key="docType.key">
+                                        <div class="border rounded p-3 mb-3">
+                                            <h6 class="fw-semibold text-dark mb-3" x-text="docType.label"></h6>
+                                            <div class="row g-3">
+                                                <div class="col-md-6">
+                                                    <label class="form-label">Document Number</label>
+                                                    <input type="text" class="form-control" x-model="employeeModalForm.documents[docType.key].document_number">
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label class="form-label">Place of Issue</label>
+                                                    <input type="text" class="form-control" x-model="employeeModalForm.documents[docType.key].place_of_issue">
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <label class="form-label">Issue Date</label>
+                                                    <input type="date" class="form-control" x-model="employeeModalForm.documents[docType.key].issue_date">
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <label class="form-label">Expiry Date</label>
+                                                    <input type="date" class="form-control" x-model="employeeModalForm.documents[docType.key].expiry_date">
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <label class="form-label">File</label>
+                                                    <input type="file" class="form-control" accept=".pdf,.jpg,.jpeg,.png" @change="employeeModalForm.documents[docType.key].file = $event.target.files[0]">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </template>
+                                </div>
+                            </template>
                         </div>
-                        <div class="modal-footer border-top">
-                            <button type="button" class="btn btn-secondary btn-sm" @click="showEmployeeModal = false">Cancel</button>
-                            <button type="submit" class="btn btn-primary btn-sm" :disabled="employeeModalForm.loading">
-                                <span x-show="!employeeModalForm.loading" x-text="employeeModalForm.id ? 'Save Changes' : 'Add Employee'"></span>
-                                <span x-show="employeeModalForm.loading" class="spinner-border spinner-border-sm" role="status"></span>
+                        <div class="modal-footer border-top d-flex justify-content-between">
+                            <button type="button" class="btn btn-light btn-sm" x-show="!employeeModalForm.id && wizardStep > 1" @click="wizardStep--">
+                                <i class="bi bi-arrow-left me-1"></i>Back
                             </button>
+                            <div class="d-flex gap-2 ms-auto">
+                                <button type="button" class="btn btn-secondary btn-sm" @click="showEmployeeModal = false">Cancel</button>
+                                <button type="button" class="btn btn-primary btn-sm" x-show="!employeeModalForm.id && wizardStep < 3" @click="goToNextWizardStep()">
+                                    Next
+                                </button>
+                                <button type="submit" class="btn btn-primary btn-sm" x-show="employeeModalForm.id || wizardStep === 3" :disabled="employeeModalForm.loading">
+                                    <span x-show="!employeeModalForm.loading" x-text="employeeModalForm.id ? 'Save Changes' : 'Add Employee'"></span>
+                                    <span x-show="employeeModalForm.loading" class="spinner-border spinner-border-sm" role="status"></span>
+                                </button>
+                            </div>
                         </div>
                     </form>
                 </div>
@@ -1720,11 +1624,10 @@
                                             <h6 class="text-muted fw-semibold mb-3 border-bottom pb-2"><i class="bi bi-briefcase-fill me-2 text-success"></i>Employment Information</h6>
                                             <table class="table table-sm fs-13">
                                                 <tr><td class="text-muted" style="width:40%">Employee ID</td><td class="fw-semibold" x-text="viewEmpData.employee_id"></td></tr>
-                                                <tr><td class="text-muted">Employee No.</td><td x-text="viewEmpData.employee_number"></td></tr>
-                                                <tr><td class="text-muted">Branch</td><td x-text="viewEmpData.branch_name"></td></tr>
-                                                <tr><td class="text-muted">Department</td><td x-text="viewEmpData.department"></td></tr>
+                                                <tr><td class="text-muted">Business Category</td><td x-text="viewEmpData.business_category"></td></tr>
                                                 <tr><td class="text-muted">Designation</td><td x-text="viewEmpData.designation"></td></tr>
-                                                <tr><td class="text-muted">Joining Date</td><td x-text="viewEmpData.joining_date"></td></tr>
+                                                <tr><td class="text-muted">Joining Date</td><td x-text="viewEmpData.joining_date || 'Not set'"></td></tr>
+                                                <tr><td class="text-muted">System Login</td><td x-text="viewEmpData.has_login ? viewEmpData.login_email : 'No login access'"></td></tr>
                                                 <tr><td class="text-muted">Shift</td><td x-text="viewEmpData.shift"></td></tr>
                                                 <tr><td class="text-muted">Salary</td><td class="fw-semibold text-success" x-text="'SAR ' + Number(viewEmpData.salary).toLocaleString()"></td></tr>
                                             </table>
@@ -2093,14 +1996,11 @@
             },
             
             // Stats & Logs Lists
-            stats: {!! json_encode($stats ?? ['employees' => ['total' => 0, 'active' => 0, 'on_leave' => 0, 'branches' => 0], 'expiries' => ['iqama' => 0, 'passport' => 0, 'insurance' => 0, 'baladiya' => 0, 'driving' => 0, 'total' => 0], 'tickets' => ['eligible_now' => 0, 'eligible_30' => 0, 'eligible_60' => 0, 'overdue' => 0, 'delayed' => 0]]) !!},
+            stats: {!! json_encode($stats ?? ['employees' => ['total' => 0, 'active' => 0, 'on_leave' => 0, 'categories' => 0], 'expiries' => ['iqama' => 0, 'passport' => 0, 'insurance' => 0, 'baladiya' => 0, 'driving' => 0, 'total' => 0], 'tickets' => ['eligible_now' => 0, 'eligible_30' => 0, 'eligible_60' => 0, 'overdue' => 0, 'delayed' => 0]]) !!},
             logs: {!! json_encode($logs ?? []) !!},
             categories: {!! json_encode($categories ?? []) !!},
-            activeCategoryFilter: 'all',
             showCategoryModal: false,
-            showBranchModal: false,
             categoryModalForm: { name: '', errorMessage: '', loading: false },
-            branchModalForm: { id: null, category_id: '', name: '', code: '', errorMessage: '', loading: false },
 
             // Form Data
             loginForm: { email: '', password: '', showPassword: false, errorMessage: '', loading: false },
@@ -2111,7 +2011,7 @@
             employees: {!! json_encode($employees ?? []) !!},
             empSearch: '',
             empFilterStatus: '',
-            empFilterBranch: '',
+            empFilterCategory: '',
             empLoading: false,
             empPage: 1,
             empPerPage: 15,
@@ -2119,12 +2019,37 @@
             showViewEmployeeModal: false,
             viewEmpData: null,
             viewEmpTab: 'info',
+            wizardStep: 1,
+            documentTypeList: [
+                { key: 'iqama', label: 'Iqama Details' },
+                { key: 'passport', label: 'Passport Details' },
+                { key: 'insurance', label: 'Health Insurance' },
+                { key: 'baladiya', label: 'Baladiya Card' },
+                { key: 'driving', label: 'Saudi Driving License' },
+            ],
+            emptyDocumentsForm() {
+                return {
+                    iqama: { type: 'Iqama Details', document_number: '', place_of_issue: '', issue_date: '', expiry_date: '', file: null },
+                    passport: { type: 'Passport Details', document_number: '', place_of_issue: '', issue_date: '', expiry_date: '', file: null },
+                    insurance: { type: 'Health Insurance', document_number: '', place_of_issue: '', issue_date: '', expiry_date: '', file: null },
+                    baladiya: { type: 'Baladiya Card', document_number: '', place_of_issue: '', issue_date: '', expiry_date: '', file: null },
+                    driving: { type: 'Saudi Driving License', document_number: '', place_of_issue: '', issue_date: '', expiry_date: '', file: null },
+                };
+            },
             employeeModalForm: {
-                id: null, employee_id: '', employee_number: '', full_name: '', arabic_name: '',
+                id: null, employee_id: '', full_name: '', arabic_name: '',
                 gender: 'Male', date_of_birth: '', nationality: '', mobile_number: '', email: '',
                 address: '', emergency_contact_name: '', emergency_contact_phone: '',
-                joining_date: '', branch_id: '', department: '', designation: '',
+                joining_date: '', business_category_id: '', designation: '',
                 salary: '', shift: 'Morning', employment_status: 'Active',
+                create_login: false, login_email: '', login_password: '',
+                documents: {
+                    iqama: { type: 'Iqama Details', document_number: '', place_of_issue: '', issue_date: '', expiry_date: '', file: null },
+                    passport: { type: 'Passport Details', document_number: '', place_of_issue: '', issue_date: '', expiry_date: '', file: null },
+                    insurance: { type: 'Health Insurance', document_number: '', place_of_issue: '', issue_date: '', expiry_date: '', file: null },
+                    baladiya: { type: 'Baladiya Card', document_number: '', place_of_issue: '', issue_date: '', expiry_date: '', file: null },
+                    driving: { type: 'Saudi Driving License', document_number: '', place_of_issue: '', issue_date: '', expiry_date: '', file: null },
+                },
                 photoFile: null, errorMessage: '', loading: false
             },
 
@@ -2175,9 +2100,8 @@
             notifAlerts: {!! json_encode($notifAlerts ?? ['document_alerts' => [], 'ticket_alerts' => [], 'total_doc_alerts' => 0, 'total_ticket_alerts' => 0]) !!},
 
             // Phase 12: Master Data State
-            masterData: {!! json_encode($masterData ?? ['departments' => [], 'designations' => [], 'leave_types' => [], 'nationalities' => []]) !!},
+            masterData: {!! json_encode($masterData ?? ['designations' => [], 'leave_types' => [], 'nationalities' => []]) !!},
             masterSaveSuccess: '',
-            newDeptName: '',
             newDesigName: '',
             newLeaveTypeName: '',
             newNatName: '',
@@ -2185,6 +2109,7 @@
             // Dynamic view title helper
             get pageTitle() {
                 if (this.page === 'dashboard') return 'HR System Dashboard';
+                if (this.page === 'branches') return 'Business Categories';
                 if (this.page === 'profile') return 'My Profile Management';
                 if (this.page === 'settings') return 'Company Master Settings';
                 if (this.page === 'logs') return 'System Audit Logs';
@@ -2228,21 +2153,6 @@
             },
 
 
-
-            // Load Master Data (Departments, Designations, etc)
-            async loadMasterData() {
-                try {
-                    const res = await fetch('/api/master-data');
-                    if (res.ok) {
-                        const data = await res.json();
-                        if (data.success) {
-                            this.masterData = data.data;
-                        }
-                    }
-                } catch (e) {
-                    console.error('Error loading master data', e);
-                }
-            },
 
             // Auth: Log in
             async login() {
@@ -2462,7 +2372,7 @@
                 }
             },
 
-            // Load Categories & Branches (Phase 2)
+            // Load Categories (Phase 2)
             async loadCategories() {
                 try {
                     const res = await fetch('/api/categories');
@@ -2512,7 +2422,7 @@
 
             // Delete Category (Phase 2)
             async deleteCategory(id) {
-                if (!confirm('Are you sure you want to delete this category? All associated branches will be deleted!')) return;
+                if (!confirm('Are you sure you want to delete this category? All employees assigned to it will also be deleted!')) return;
 
                 try {
                     const tokenMeta = document.querySelector('meta[name="csrf-token"]');
@@ -2535,91 +2445,6 @@
                 }
             },
 
-            // Open Branch Modal for Create (Phase 2)
-            openAddBranchModal(categoryId = '') {
-                this.branchModalForm.id = null;
-                this.branchModalForm.category_id = categoryId;
-                this.branchModalForm.name = '';
-                this.branchModalForm.code = '';
-                this.branchModalForm.errorMessage = '';
-                this.showBranchModal = true;
-            },
-
-            // Open Branch Modal for Edit (Phase 2)
-            openEditBranchModal(branch) {
-                this.branchModalForm.id = branch.id;
-                this.branchModalForm.category_id = branch.business_category_id;
-                this.branchModalForm.name = branch.name;
-                this.branchModalForm.code = branch.code || '';
-                this.branchModalForm.errorMessage = '';
-                this.showBranchModal = true;
-            },
-
-            // Submit Branch (Phase 2)
-            async submitBranch() {
-                this.branchModalForm.loading = true;
-                this.branchModalForm.errorMessage = '';
-
-                try {
-                    const tokenMeta = document.querySelector('meta[name="csrf-token"]');
-                    const url = this.branchModalForm.id 
-                        ? `/api/branches/${this.branchModalForm.id}` 
-                        : '/api/branches';
-                    
-                    const res = await fetch(url, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Accept': 'application/json',
-                            'X-CSRF-TOKEN': tokenMeta ? tokenMeta.content : ''
-                        },
-                        body: JSON.stringify({
-                            business_category_id: this.branchModalForm.category_id,
-                            name: this.branchModalForm.name,
-                            code: this.branchModalForm.code
-                        })
-                    });
-
-                    const data = await res.json();
-                    if (data.success) {
-                        this.showBranchModal = false;
-                        this.loadCategories();
-                        this.loadStats();
-                    } else {
-                        this.branchModalForm.errorMessage = data.message || 'Failed to save branch.';
-                    }
-                } catch (e) {
-                    this.branchModalForm.errorMessage = 'Network error occurred.';
-                } finally {
-                    this.branchModalForm.loading = false;
-                }
-            },
-
-            // Delete Branch (Phase 2)
-            async deleteBranch(id) {
-                if (!confirm('Are you sure you want to delete this branch?')) return;
-
-                try {
-                    const tokenMeta = document.querySelector('meta[name="csrf-token"]');
-                    const res = await fetch(`/api/branches/${id}`, {
-                        method: 'DELETE',
-                        headers: {
-                            'X-CSRF-TOKEN': tokenMeta ? tokenMeta.content : ''
-                        }
-                    });
-
-                    const data = await res.json();
-                    if (data.success) {
-                        this.loadCategories();
-                        this.loadStats();
-                    } else {
-                        alert(data.message || 'Failed to delete branch.');
-                    }
-                } catch (e) {
-                    console.error('Error deleting branch', e);
-                }
-            },
-
             // ========== PHASE 3: EMPLOYEE MANAGEMENT ==========
 
             async loadEmployees() {
@@ -2628,7 +2453,7 @@
                     const params = new URLSearchParams();
                     if (this.empSearch) params.set('search', this.empSearch);
                     if (this.empFilterStatus) params.set('status', this.empFilterStatus);
-                    if (this.empFilterBranch) params.set('branch_id', this.empFilterBranch);
+                    if (this.empFilterCategory) params.set('business_category_id', this.empFilterCategory);
 
                     const res = await fetch('/api/employees?' + params.toString());
                     if (res.ok) {
@@ -2647,19 +2472,28 @@
             },
 
             openAddEmployee() {
+                this.wizardStep = 1;
                 this.employeeModalForm = {
-                    id: null, employee_id: '', employee_number: '', full_name: '', arabic_name: '',
+                    id: null, employee_id: '', full_name: '', arabic_name: '',
                     gender: 'Male', date_of_birth: '', nationality: '', mobile_number: '', email: '',
                     address: '', emergency_contact_name: '', emergency_contact_phone: '',
-                    joining_date: '', branch_id: '', department: '', designation: '',
+                    joining_date: '', business_category_id: '', designation: '',
                     salary: '', shift: 'Morning', employment_status: 'Active',
+                    create_login: false, login_email: '', login_password: '',
+                    documents: this.emptyDocumentsForm(),
                     photoFile: null, errorMessage: '', loading: false
                 };
                 this.showEmployeeModal = true;
             },
 
             openEditEmployee(emp) {
-                this.employeeModalForm = { ...emp, photoFile: null, errorMessage: '', loading: false };
+                this.wizardStep = 1;
+                this.employeeModalForm = {
+                    ...emp,
+                    create_login: false, login_email: '', login_password: '',
+                    documents: this.emptyDocumentsForm(),
+                    photoFile: null, errorMessage: '', loading: false
+                };
                 this.showEmployeeModal = true;
             },
 
@@ -2678,7 +2512,50 @@
                 }
             },
 
+            // Manual per-step validation for the create wizard (native `required` is
+            // deliberately off for wizard fields — a required field hidden on a step
+            // the user has moved past makes the browser silently refuse to submit).
+            validateWizardStep(step) {
+                this.employeeModalForm.errorMessage = '';
+                const f = this.employeeModalForm;
+
+                if (step === 1) {
+                    if (!f.full_name || !f.gender || !f.date_of_birth || !f.nationality || !f.mobile_number) {
+                        this.employeeModalForm.errorMessage = 'Please fill in all required fields (marked with *) before continuing.';
+                        return false;
+                    }
+                }
+                if (step === 2) {
+                    if (!f.business_category_id || !f.designation || !f.salary || !f.shift || !f.employment_status) {
+                        this.employeeModalForm.errorMessage = 'Please fill in all required fields (marked with *) before continuing.';
+                        return false;
+                    }
+                    if (f.create_login && (!f.login_email || !f.login_password)) {
+                        this.employeeModalForm.errorMessage = 'Please provide a login email and password, or uncheck "Grant system access".';
+                        return false;
+                    }
+                }
+                return true;
+            },
+
+            goToNextWizardStep() {
+                if (!this.validateWizardStep(this.wizardStep)) return;
+                this.wizardStep++;
+            },
+
             async submitEmployee() {
+                // Wizard navigation on the create flow: advance a step instead of submitting
+                if (!this.employeeModalForm.id && this.wizardStep < 3) {
+                    if (!this.validateWizardStep(this.wizardStep)) return;
+                    this.wizardStep++;
+                    return;
+                }
+
+                // Defensive re-check in case step 3 was reached without going through the Next guard
+                if (!this.employeeModalForm.id && (!this.validateWizardStep(1) || !this.validateWizardStep(2))) {
+                    return;
+                }
+
                 this.employeeModalForm.loading = true;
                 this.employeeModalForm.errorMessage = '';
 
@@ -2687,13 +2564,19 @@
                     const formData = new FormData();
 
                     const fields = [
-                        'employee_id','employee_number','full_name','arabic_name','gender','date_of_birth',
+                        'full_name','arabic_name','gender','date_of_birth',
                         'nationality','mobile_number','email','address','emergency_contact_name',
-                        'emergency_contact_phone','joining_date','branch_id','department','designation',
+                        'emergency_contact_phone','joining_date','business_category_id','designation',
                         'salary','shift','employment_status'
                     ];
                     fields.forEach(f => { if (this.employeeModalForm[f] !== null && this.employeeModalForm[f] !== undefined) formData.append(f, this.employeeModalForm[f]); });
                     if (this.employeeModalForm.photoFile) formData.append('profile_photo_file', this.employeeModalForm.photoFile);
+
+                    if (!this.employeeModalForm.id && this.employeeModalForm.create_login) {
+                        formData.append('create_login', '1');
+                        formData.append('login_email', this.employeeModalForm.login_email);
+                        formData.append('login_password', this.employeeModalForm.login_password);
+                    }
 
                     const url = this.employeeModalForm.id ? `/api/employees/${this.employeeModalForm.id}` : '/api/employees';
                     const res = await fetch(url, {
@@ -2704,6 +2587,9 @@
 
                     const data = await res.json();
                     if (data.success) {
+                        if (!this.employeeModalForm.id && data.employee && data.employee.id) {
+                            await this.uploadWizardDocuments(data.employee.id);
+                        }
                         this.showEmployeeModal = false;
                         this.showToast(data.message, 'success');
                         this.loadEmployees();
@@ -2720,6 +2606,34 @@
                     this.employeeModalForm.errorMessage = 'Network error occurred.';
                 } finally {
                     this.employeeModalForm.loading = false;
+                }
+            },
+
+            // Upload any filled-in document sections from the Add Employee wizard
+            async uploadWizardDocuments(employeeId) {
+                const tokenMeta = document.querySelector('meta[name="csrf-token"]');
+                for (const key of Object.keys(this.employeeModalForm.documents)) {
+                    const doc = this.employeeModalForm.documents[key];
+                    if (!doc.document_number) continue; // section left blank, skip
+
+                    const fd = new FormData();
+                    fd.append('employee_id', employeeId);
+                    fd.append('type', doc.type);
+                    fd.append('document_number', doc.document_number);
+                    if (doc.place_of_issue) fd.append('place_of_issue', doc.place_of_issue);
+                    if (doc.issue_date) fd.append('issue_date', doc.issue_date);
+                    if (doc.expiry_date) fd.append('expiry_date', doc.expiry_date);
+                    if (doc.file) fd.append('document_file', doc.file);
+
+                    try {
+                        await fetch('/api/documents', {
+                            method: 'POST',
+                            headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': tokenMeta ? tokenMeta.content : '' },
+                            body: fd
+                        });
+                    } catch (e) {
+                        console.error('Error uploading document', key, e);
+                    }
                 }
             },
 
@@ -3014,21 +2928,6 @@
 
                 const chartData = stats.charts || {};
 
-                // Branch chart
-                if (chartData.by_branch && chartData.by_branch.labels && chartData.by_branch.labels.length > 0) {
-                    const ctx = getCtx('branchChart');
-                    if (ctx) {
-                        this._charts.branch = new Chart(ctx, {
-                            type: 'bar',
-                            data: {
-                                labels: chartData.by_branch.labels,
-                                datasets: [{ label: 'Employees', data: chartData.by_branch.data, backgroundColor: palette, borderRadius: 6, borderSkipped: false }]
-                            },
-                            options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
-                        });
-                    }
-                } else { empty('branchChart'); }
-
                 // Business type (category) chart
                 if (chartData.by_business && chartData.by_business.labels && chartData.by_business.labels.length > 0) {
                     const ctx = getCtx('businessChart');
@@ -3058,21 +2957,6 @@
                         });
                     }
                 } else { empty('nationalityChart'); }
-
-                // Department chart
-                if (chartData.by_department && chartData.by_department.labels && chartData.by_department.labels.length > 0) {
-                    const ctx = getCtx('departmentChart');
-                    if (ctx) {
-                        this._charts.department = new Chart(ctx, {
-                            type: 'bar',
-                            data: {
-                                labels: chartData.by_department.labels,
-                                datasets: [{ label: 'Employees', data: chartData.by_department.data, backgroundColor: palette, borderRadius: 6, borderSkipped: false }]
-                            },
-                            options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
-                        });
-                    }
-                } else { empty('departmentChart'); }
             },
 
             // ========== PHASE 9: USER MANAGEMENT ==========
@@ -3152,7 +3036,6 @@
                     if (res.ok) {
                         const data = await res.json();
                         if (data.success) {
-                            this.masterData.departments = data.data.departments || [];
                             this.masterData.designations = data.data.designations || [];
                             this.masterData.leave_types = data.data.leave_types || [];
                             this.masterData.nationalities = data.data.nationalities || [];

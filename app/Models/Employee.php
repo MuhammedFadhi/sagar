@@ -13,8 +13,8 @@ class Employee extends Model
     protected $fillable = [
         'employee_id', 'full_name', 'arabic_name', 'profile_photo', 'gender',
         'date_of_birth', 'nationality', 'mobile_number', 'email', 'address',
-        'emergency_contact_name', 'emergency_contact_phone', 'employee_number',
-        'joining_date', 'branch_id', 'department', 'designation', 'salary',
+        'emergency_contact_name', 'emergency_contact_phone',
+        'joining_date', 'business_category_id', 'user_id', 'designation', 'salary',
         'shift', 'employment_status'
     ];
 
@@ -32,9 +32,14 @@ class Employee extends Model
         'ticket_status'
     ];
 
-    public function branch()
+    public function businessCategory()
     {
-        return $this->belongsTo(Branch::class);
+        return $this->belongsTo(BusinessCategory::class);
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
     }
 
     public function documents()
@@ -77,9 +82,13 @@ class Employee extends Model
 
     public function getWorkingServiceDaysAttribute()
     {
+        if (!$this->joining_date) {
+            return null;
+        }
+
         $joining = Carbon::parse($this->joining_date);
         $today = Carbon::today();
-        
+
         if ($joining->isAfter($today)) {
             return 0;
         }
@@ -93,17 +102,25 @@ class Employee extends Model
 
     public function getTicketEligibilityDaysLeftAttribute()
     {
-        $requiredDays = 730; // 2 years
         $workedDays = $this->working_service_days;
+        if ($workedDays === null) {
+            return null;
+        }
+
+        $requiredDays = 730; // 2 years
         $left = $requiredDays - $workedDays;
         return $left < 0 ? 0 : $left;
     }
 
     public function getTicketEligibilityDateAttribute()
     {
+        if (!$this->joining_date) {
+            return null;
+        }
+
         $joining = Carbon::parse($this->joining_date);
         $pausedDays = $this->paused_days;
-        
+
         // Target date is joining date + 730 days + paused days
         return $joining->copy()->addDays(730)->addDays($pausedDays);
     }
@@ -112,6 +129,11 @@ class Employee extends Model
     {
         $daysLeft = $this->ticket_eligibility_days_left;
         $eligibilityDate = $this->ticket_eligibility_date;
+
+        if ($daysLeft === null || $eligibilityDate === null) {
+            return 'N/A';
+        }
+
         $today = Carbon::today();
 
         if ($daysLeft == 0) {

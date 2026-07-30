@@ -11,8 +11,8 @@ class BusinessCategory extends Model
 
     protected $fillable = ['name'];
 
-    public function branches()
+    public function employees()
     {
-        return $this->hasMany(Branch::class);
+        return $this->hasMany(Employee::class);
     }
 }

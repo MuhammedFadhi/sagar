@@ -24,7 +24,7 @@
             <li class="pe-slide" x-show="loggedIn">
                 <a href="{{ url('/branches') }}" class="pe-nav-link" :class="{ 'active': page === 'branches' }">
                     <i class="bi bi-building pe-nav-icon"></i>
-                    <span class="pe-nav-content">Business & Branches</span>
+                    <span class="pe-nav-content">Business Categories</span>
                 </a>
             </li>
             <li class="pe-slide" x-show="loggedIn">

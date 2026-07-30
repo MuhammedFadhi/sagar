@@ -22,13 +22,10 @@ Route::middleware('auth')->group(function () {
     Route::post('/api/settings/update', [DashboardController::class, 'updateSettings']);
     Route::get('/api/dashboard-stats', [DashboardController::class, 'getStats']);
 
-    // Phase 2 Category & Branch APIs
+    // Phase 2 Category APIs
     Route::get('/api/categories', [DashboardController::class, 'getCategories']);
     Route::post('/api/categories', [DashboardController::class, 'storeCategory']);
     Route::delete('/api/categories/{id}', [DashboardController::class, 'deleteCategory']);
-    Route::post('/api/branches', [DashboardController::class, 'storeBranch']);
-    Route::post('/api/branches/{id}', [DashboardController::class, 'updateBranch']);
-    Route::delete('/api/branches/{id}', [DashboardController::class, 'deleteBranch']);
 
     // Phase 3: Employee Management APIs
     Route::get('/api/employees', [DashboardController::class, 'getEmployees']);
