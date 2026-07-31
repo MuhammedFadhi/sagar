@@ -136,8 +136,13 @@
                                         </div>
                                         <div class="col-12">
                                             <label for="password" class="form-label text-dark">Password <span class="text-danger">*</span></label>
-                                            <input type="password" class="form-control" id="password"
-                                                placeholder="Enter your password" x-model="loginForm.password" required>
+                                            <div class="input-group">
+                                                <input :type="loginForm.showPassword ? 'text' : 'password'" class="form-control" id="password"
+                                                    placeholder="Enter your password" x-model="loginForm.password" required>
+                                                <button type="button" class="btn btn-light border" @click="loginForm.showPassword = !loginForm.showPassword" tabindex="-1">
+                                                    <i class="bi" :class="loginForm.showPassword ? 'bi-eye-slash' : 'bi-eye'"></i>
+                                                </button>
+                                            </div>
                                         </div>
                                         <div class="col-12">
                                             <div class="d-flex justify-content-between align-items-center">
